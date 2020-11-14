@@ -5,10 +5,12 @@ public class Main {
 	long seed;
 	int range;
 
-	seed = parseSeed(argv);
-	range = parseRange(argv);
+	seed = Main.parseSeed(argv);
+	range = Main.parseRange(argv);
 
 	FortressFinder finder = new FortressFinder(seed, range);
+	finder.findFortressLocations();
+	finder.findBucket0Fortresses();
     }
 
     static long parseSeed(String argv[]) {
@@ -54,7 +56,7 @@ public class Main {
 	System.err.println("Usage:");
 	System.err.println("\tjava -jar SafeFortressFinder.jar <seed> <range>");
 	System.err.println("\t\tseed:\ta Minecraft world seed");
-	System.err.println("\t\trange:\tthe maximum range (in blocks) to search from (0,0)");
+	System.err.println("\t\trange:\tthe maximum range (in chunks) to search from (0,0)");
 	
 	System.exit(status);
     }
