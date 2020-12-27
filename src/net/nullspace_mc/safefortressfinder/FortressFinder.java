@@ -36,33 +36,33 @@ public class FortressFinder {
 	System.out.println("Found " + this.fortresses.size() + " fortresses.");
     }
 
-    /** searches for nether fortresses that will be at bucket 0 of
+    /** searches for nether fortresses that will be in a certain bucket of
      *	the hash map
      */
-    public void findBucket0Fortresses() {
+    public void findBucketNFortresses(int n) {
 	int tableSize = 16;
 	int numFortresses = this.fortresses.size();
 	int maxTableSize = this.tableSizeFor(numFortresses);
 	if((maxTableSize * 3) / 4 <= fortresses.size()) maxTableSize *= 2;
-	LinkedList<CoordinatePair> bucket0Fortresses = new LinkedList<CoordinatePair>();
+	LinkedList<CoordinatePair> bucketNFortresses = new LinkedList<CoordinatePair>();
 
 	while(tableSize <= maxTableSize) {
-	    System.out.println("Fortresses in bucket 0 with table size " + tableSize);
+	    System.out.println("Fortresses in bucket " + n + " with table size " + tableSize);
 
 	    for(CoordinatePair f : this.fortresses) {
-		if(f.getHashMapBucket(tableSize - 1) == 0) {
+		if(f.getHashMapBucket(tableSize - 1) == n) {
 		    System.out.println("(" + f.x + "," + f.z + ")");
-		    bucket0Fortresses.add(f);
+		    bucketNFortresses.add(f);
 		}
 	    }
 
-	    if(bucket0Fortresses.size() == 0) {
+	    if(bucketNFortresses.size() == 0) {
 		System.out.println("No fortresses in bucket 0");
 	    }
 
 	    this.fortresses.clear();
-	    this.fortresses = bucket0Fortresses;
-	    bucket0Fortresses = new LinkedList<CoordinatePair>();
+	    this.fortresses = bucketNFortresses;
+	    bucketNFortresses = new LinkedList<CoordinatePair>();
 
 	    tableSize *= 2;
 	}

@@ -10,7 +10,7 @@ public class Main {
 
 	FortressFinder finder = new FortressFinder(seed, range);
 	finder.findFortressLocations();
-	finder.findBucket0Fortresses();
+	finder.findBucketNFortresses(0);
     }
 
     static long parseSeed(String argv[]) {
