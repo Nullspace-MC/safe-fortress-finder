@@ -23,6 +23,18 @@ public class FortressPos {
         );
     }
 
+    public FortressPos copy() {
+        return new FortressPos(this.x, this.z);
+    }
+
+    public String toString() {
+        return String.format("[%d,%d]", this.x, this.z);
+    }
+
+    public boolean equals(FortressPos other) {
+        return this.x == other.x && this.z == other.z;
+    }
+
     public int hashCode() {
         return this.x ^ this.z;
     }

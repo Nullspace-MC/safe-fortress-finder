@@ -17,6 +17,9 @@ public class Main implements Runnable {
     @Spec
     CommandSpec spec;
 
+    @Option(names = {"-c", "--checks"}, description = "Number of save/load cycles to check for order changes.")
+    int checks = 100;
+
     @Option(names = {"-f", "--file"}, description = "World's Fortress.dat file.")
     File fortFile = null;
 
@@ -40,6 +43,10 @@ public class Main implements Runnable {
         }
         FortressFinder ff = new FortressFinder();
         if(seedArgs != null) {
+            // validate that both seed and range were supplied
+            if(seedArgs.seed == null || seedArgs.range == null) {
+                throw new ParameterException(spec.commandLine(), "One of --seed or --range missing.");
+            }
             // validate range
             if(seedArgs.range.intValue() < 0) {
                 throw new ParameterException(spec.commandLine(),
@@ -53,12 +60,13 @@ public class Main implements Runnable {
         }
         if(fortFile != null) {
             // find fortresses in file
-            //ff.searchFile(fortFile);
+            ff.searchFile(fortFile);
         }
         
-        ff.cacheTable();
+        ff.checkSafety(checks);
         ff.printCandidates(seedArgs == null && fortFile != null);
         if(seedArgs != null) ff.printMinTableSize();
+        
     }
 
     public static void main(String[] args) {

@@ -25,6 +25,7 @@ public class HashMapInspector<K, V> {
     }
 
     // returns the underlying hash table of a given HashMap
+    @SuppressWarnings("unchecked")
     public static <K, V> Map.Entry<K, V>[] getTable(HashMap<K, V> map) {
         try {
             return (Map.Entry<K, V>[])table.get(map);
@@ -34,6 +35,7 @@ public class HashMapInspector<K, V> {
     }
 
     // returns the node following a given entry
+    @SuppressWarnings("unchecked")
     public static <K, V> Map.Entry<K, V> getNextNode(Map.Entry<K, V> node) {
         try {
             return (Map.Entry<K, V>)nodeNext.get(node);

@@ -1,7 +1,11 @@
 package net.nullspace_mc.safe_fortress_finder;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
+import me.nullicorn.nedit.NBTInputStream;
+import me.nullicorn.nedit.type.NBTCompound;
 
 public class FortressFinder {
 
@@ -27,11 +31,62 @@ public class FortressFinder {
         }
     }
 
+    // searches a given Fortress.dat file for fortresses within the given range and adds them to forts
+    public void searchFile(File fortFile) {
+        try {
+            NBTInputStream fortFileStream = new NBTInputStream(new FileInputStream(fortFile));
+            NBTCompound fortTags = fortFileStream.readFully().getCompound("data.Features");
+            for(Object fto : fortTags.values()) {
+                NBTCompound ft = (NBTCompound)fto;
+                this.forts.put(new FortressPos(ft.getInt("ChunkX", 0), ft.getInt("ChunkZ", 0)), placeholder);
+            }
+        } catch(Exception e) {
+            throw new AssertionError(e);
+        }
+    }
+
     // gets the table underlying the forts HashMap and find the first nonempty bucket
     public void cacheTable() {
         this.table = HashMapInspector.getTable(forts);
         int i; for(i = 0; i < table.length && table[i] == null; ++i);
         this.firstFortIdx = i;
+    }
+
+    // simulates saving the fortress map to/loading from disk
+    public void reloadMap() {
+        HashMap<String, FortressPos> nbtWrite = new HashMap<String, FortressPos>();
+        for(FortressPos fp : this.forts.keySet()) {
+            nbtWrite.put(fp.toString(), fp.copy());
+        }
+        HashMap<String, FortressPos> nbtRead = new HashMap<String, FortressPos>();
+        for(Map.Entry<String, FortressPos> nbt : nbtWrite.entrySet()) {
+            nbtRead.put(nbt.getKey(), nbt.getValue().copy());
+        }
+        this.forts = new HashMap<FortressPos, Object>();
+        for(FortressPos fp : nbtRead.values()) {
+            this.forts.put(fp.copy(), FortressFinder.placeholder);
+        }
+    }
+
+    // simulates saving/loading the fortress map several times and checks for changes
+    public void checkSafety(int n) {
+        this.cacheTable();
+        Map.Entry<FortressPos, Object> oldEntry, newEntry;
+        FortressPos oldPos, newPos;
+        for(int i = 1; i <= n; ++i) {
+            oldEntry = this.table[this.firstFortIdx];
+            oldPos = oldEntry.getKey();
+            this.reloadMap();
+            this.cacheTable();
+            newEntry = this.table[this.firstFortIdx];
+            newPos = newEntry.getKey();
+
+            if(!oldPos.equals(newPos)) {
+                System.out.printf("Safe fortress changed on replacement %d from (%d,%d) to (%d,%d)\n",
+                    i, oldPos.x, oldPos.z, newPos.x, newPos.z
+                );
+            }
+        }
     }
 
     // prints the safe fortress candidates in the first nonempty HashMap bucket
@@ -57,6 +112,7 @@ public class FortressFinder {
         }
     }
 
+    // calculates and prints the minimum hash table size for which bucket 0 has a consistent set of fortresses in it
     public void printMinTableSize() {
         int minTableSize;
         SIZECALC:
